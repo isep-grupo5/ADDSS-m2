@@ -1,0 +1,12 @@
+output: trivy.txt
+format: table
+exit-code: 1
+timeout: 15m
+severity: UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL
+dependency-tree: true
+ignorefile: ./.trivyignore
+scan:
+  security-checks:
+    - vuln
+    - config
+    - secret
