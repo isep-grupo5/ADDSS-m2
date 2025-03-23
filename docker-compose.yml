@@ -59,13 +59,6 @@ services:
       - dependency-track-api
     restart: unless-stopped
 
-  trivy:
-    image: aquasec/trivy
-    container_name: trivy
-    entrypoint: ["trivy"]
-    networks:
-      - security-tools
-
 networks:
   security-tools:
     driver: bridge
