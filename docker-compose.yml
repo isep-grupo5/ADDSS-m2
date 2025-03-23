@@ -17,7 +17,7 @@ services:
     restart: unless-stopped
 
   sonarqube:
-    image: sonarqube:lts
+    image: sonarqube:25.2.0.102705-community
     container_name: sonarqube
     environment:
       SONAR_JDBC_URL: jdbc:postgresql://postgres:5432/sonar
@@ -37,6 +37,7 @@ services:
       POSTGRES_USER: dtrack
       POSTGRES_PASSWORD: dtrackpass
       ALPINE_DATABASE_MODE: external
+      SYSTEM_REQUIREMENT_CHECK_ENABLED: "false"
     ports:
       - "8081:8080"
     networks:
