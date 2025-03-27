@@ -15,7 +15,7 @@
     <description>TutorialWS</description>
     <properties>
         <java.version>11</java.version>
-
+        <sonar.coverage.jacoco.xmlReportPaths>${project.basedir}/target/site/jacoco/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
     </properties>
     <dependencies>
         <dependency>
