@@ -1,0 +1,13 @@
+GROUP,PACKAGE,CLASS,INSTRUCTION_MISSED,INSTRUCTION_COVERED,BRANCH_MISSED,BRANCH_COVERED,LINE_MISSED,LINE_COVERED,COMPLEXITY_MISSED,COMPLEXITY_COVERED,METHOD_MISSED,METHOD_COVERED
+TutorialWS,com.example.tutorialws.controller,TagController,228,3,8,0,39,1,18,1,14,1
+TutorialWS,com.example.tutorialws.controller,CommentController,188,3,6,0,37,1,16,1,13,1
+TutorialWS,com.example.tutorialws.controller,CommentController.Nif,26,0,0,0,12,0,6,0,6,0
+TutorialWS,com.example.tutorialws.controller,TutorialController,156,3,6,0,26,1,12,1,9,1
+TutorialWS,com.example.tutorialws.config,WebFluxConfig,0,30,0,0,0,8,0,2,0,2
+TutorialWS,com.example.tutorialws.model,Tag,17,8,0,0,7,3,5,1,5,1
+TutorialWS,com.example.tutorialws.model,Comment,28,3,0,0,12,1,8,1,8,1
+TutorialWS,com.example.tutorialws.model,Tutorial,102,8,4,0,26,3,16,1,14,1
+TutorialWS,com.example.tutorialws.exception,ResourceNotFoundException,4,0,0,0,2,0,1,0,1,0
+TutorialWS,com.example.tutorialws.exception,ErrorMessage,27,0,0,0,10,0,5,0,5,0
+TutorialWS,com.example.tutorialws.exception,ControllerExceptionHandler,32,3,0,0,10,1,2,1,2,1
+TutorialWS,com.example.tutorialws,TutorialWsApplication,5,3,0,0,2,1,1,1,1,1

@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CommentController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">TutorialWS</a> &gt; <a href="index.source.html" class="el_package">com.example.tutorialws.controller</a> &gt; <span class="el_source">CommentController.java</span></div><h1>CommentController.java</h1><pre class="source lang-java linenums">package com.example.tutorialws.controller;
+
+import java.util.List;
+import java.util.Optional;
+
+import com.example.tutorialws.exception.ResourceNotFoundException;
+import com.example.tutorialws.model.Comment;
+import com.example.tutorialws.repository.CommentRepository;
+import com.example.tutorialws.repository.TutorialRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
+
+@CrossOrigin(origins = &quot;http://localhost:8080&quot;)
+@RestController
+@RequestMapping(&quot;/api&quot;)
+<span class="fc" id="L28">public class CommentController {</span>
+    @Autowired
+    private TutorialRepository tutorialRepository;
+    @Autowired
+    private CommentRepository commentRepository;
+
+    @Autowired
+    WebClient webClient;
+    @GetMapping(&quot;/tutorials/{tutorialId}/comments&quot;)
+    public ResponseEntity&lt;List&lt;Comment&gt;&gt; getAllCommentsByTutorialId(@PathVariable(value = &quot;tutorialId&quot;) Long tutorialId) {
+<span class="nc bnc" id="L38" title="All 2 branches missed.">        if (!tutorialRepository.existsById(tutorialId)) {</span>
+<span class="nc" id="L39">            throw new ResourceNotFoundException(&quot;Not found Tutorial with id = &quot; + tutorialId);</span>
+        }
+<span class="nc" id="L41">        List&lt;Comment&gt; comments = commentRepository.findByTutorialId(tutorialId);</span>
+<span class="nc" id="L42">        return new ResponseEntity&lt;&gt;(comments, HttpStatus.OK);</span>
+    }
+    @GetMapping(&quot;/comments/{id}&quot;)
+    public ResponseEntity&lt;Comment&gt; getCommentsByTutorialId(@PathVariable(value = &quot;id&quot;) Long id) {
+<span class="nc" id="L46">        Comment comment = commentRepository.findById(id)</span>
+<span class="nc" id="L47">                .orElseThrow(() -&gt; new ResourceNotFoundException(&quot;Not found Comment with id = &quot; + id));</span>
+<span class="nc" id="L48">        return new ResponseEntity&lt;&gt;(comment, HttpStatus.OK);</span>
+    }
+    @PostMapping(&quot;/tutorials/{tutorialId}/comments&quot;)
+    public ResponseEntity&lt;Comment&gt; createComment(@PathVariable(value = &quot;tutorialId&quot;) Long tutorialId,
+                                                 @RequestBody Comment commentRequest) {
+<span class="nc" id="L53">        Optional&lt;Nif&gt; op = findById ((Long)commentRequest.getNif());</span>
+<span class="nc bnc" id="L54" title="All 2 branches missed.">        if(op.isEmpty()){</span>
+<span class="nc" id="L55">            return new ResponseEntity&lt;&gt;( HttpStatus.NO_CONTENT);</span>
+        }
+<span class="nc" id="L57">        Comment comment = tutorialRepository.findById(tutorialId).map(tutorial -&gt; {</span>
+<span class="nc" id="L58">            commentRequest.setTutorial(tutorial);</span>
+<span class="nc" id="L59">            return commentRepository.save(commentRequest);</span>
+<span class="nc" id="L60">        }).orElseThrow(() -&gt; new ResourceNotFoundException(&quot;Not found Tutorial with id = &quot; + tutorialId));</span>
+<span class="nc" id="L61">        return new ResponseEntity&lt;&gt;(comment, HttpStatus.CREATED);</span>
+    }
+    @PutMapping(&quot;/comments/{id}&quot;)
+    public ResponseEntity&lt;Comment&gt; updateComment(@PathVariable(&quot;id&quot;) long id, @RequestBody Comment commentRequest) {
+<span class="nc" id="L65">        Comment comment = commentRepository.findById(id)</span>
+<span class="nc" id="L66">                .orElseThrow(() -&gt; new ResourceNotFoundException(&quot;CommentId &quot; + id + &quot;not found&quot;));</span>
+<span class="nc" id="L67">        comment.setContent(commentRequest.getContent());</span>
+<span class="nc" id="L68">        return new ResponseEntity&lt;&gt;(commentRepository.save(comment), HttpStatus.OK);</span>
+    }
+    @DeleteMapping(&quot;/comments/{id}&quot;)
+    public ResponseEntity&lt;HttpStatus&gt; deleteComment(@PathVariable(&quot;id&quot;) long id) {
+<span class="nc" id="L72">        commentRepository.deleteById(id);</span>
+<span class="nc" id="L73">        return new ResponseEntity&lt;&gt;(HttpStatus.NO_CONTENT);</span>
+    }
+
+    @DeleteMapping(&quot;/tutorials/{tutorialId}/comments&quot;)
+    public ResponseEntity&lt;List&lt;Comment&gt;&gt; deleteAllCommentsOfTutorial(@PathVariable(value = &quot;tutorialId&quot;) Long tutorialId) {
+<span class="nc bnc" id="L78" title="All 2 branches missed.">        if (!tutorialRepository.existsById(tutorialId)) {</span>
+<span class="nc" id="L79">            throw new ResourceNotFoundException(&quot;Not found Tutorial with id = &quot; + tutorialId);</span>
+        }
+<span class="nc" id="L81">        commentRepository.deleteByTutorialId(tutorialId);</span>
+<span class="nc" id="L82">        return new ResponseEntity&lt;&gt;(HttpStatus.NO_CONTENT);</span>
+    }
+
+    private Optional&lt;Nif&gt; findById(Long id)
+    {
+        try {
+<span class="nc" id="L88">            Mono&lt;Nif&gt; response = webClient</span>
+<span class="nc" id="L89">                    .get()</span>
+<span class="nc" id="L90">                    .uri(&quot;/nifs/&quot; + id)</span>
+<span class="nc" id="L91">                    .retrieve()</span>
+<span class="nc" id="L92">                    .onStatus(HttpStatus::is4xxClientError, error -&gt; { return Mono.empty(); })</span>
+<span class="nc" id="L93">                    .bodyToMono(Nif.class)</span>
+<span class="nc" id="L94">                    .onErrorReturn( null )</span>
+<span class="nc" id="L95">                    .doOnError(throwable -&gt; { System.out.println( throwable.getMessage() );} );</span>
+
+<span class="nc" id="L97">            Nif nif = response.block();</span>
+
+<span class="nc" id="L99">            return Optional.of(nif);</span>
+<span class="nc" id="L100">        }catch( Exception e) {</span>
+<span class="nc" id="L101">            return Optional.empty();</span>
+        }
+    }
+    static class Nif{
+        private long nr;
+        private String name;
+
+        public long getNr() {
+<span class="nc" id="L109">            return nr;</span>
+        }
+<span class="nc" id="L111">        public Nif() {</span>
+<span class="nc" id="L112">        }</span>
+<span class="nc" id="L113">        public Nif(long nr, String name) {</span>
+<span class="nc" id="L114">            this.nr = nr;</span>
+<span class="nc" id="L115">            this.name = name;</span>
+<span class="nc" id="L116">        }</span>
+
+        public void setNr(long nr) {
+<span class="nc" id="L119">            this.nr = nr;</span>
+<span class="nc" id="L120">        }</span>
+
+        public String getName() {
+<span class="nc" id="L123">            return name;</span>
+        }
+
+        public void setName(String name) {
+<span class="nc" id="L127">            this.name = name;</span>
+<span class="nc" id="L128">        }</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

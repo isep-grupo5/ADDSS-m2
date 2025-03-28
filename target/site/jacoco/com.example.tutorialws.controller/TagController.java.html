@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TagController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">TutorialWS</a> &gt; <a href="index.source.html" class="el_package">com.example.tutorialws.controller</a> &gt; <span class="el_source">TagController.java</span></div><h1>TagController.java</h1><pre class="source lang-java linenums">package com.example.tutorialws.controller;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import com.example.tutorialws.exception.ResourceNotFoundException;
+import com.example.tutorialws.model.Tag;
+import com.example.tutorialws.model.Tutorial;
+import com.example.tutorialws.repository.TagRepository;
+import com.example.tutorialws.repository.TutorialRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+@CrossOrigin(origins = &quot;http://localhost:8081&quot;)
+@RestController
+@RequestMapping(&quot;/api&quot;)
+<span class="fc" id="L19">public class TagController {</span>
+    @Autowired
+    private TutorialRepository tutorialRepository;
+    @Autowired
+    private TagRepository tagRepository;
+    @GetMapping(&quot;/tags&quot;)
+    public ResponseEntity&lt;List&lt;Tag&gt;&gt; getAllTags() {
+<span class="nc" id="L26">        List&lt;Tag&gt; tags = new ArrayList&lt;Tag&gt;();</span>
+<span class="nc" id="L27">        tagRepository.findAll().forEach(tags::add);</span>
+<span class="nc bnc" id="L28" title="All 2 branches missed.">        if (tags.isEmpty()) {</span>
+<span class="nc" id="L29">            return new ResponseEntity&lt;&gt;(HttpStatus.NO_CONTENT);</span>
+        }
+<span class="nc" id="L31">        return new ResponseEntity&lt;&gt;(tags, HttpStatus.OK);</span>
+    }
+
+    @GetMapping(&quot;/tutorials/{tutorialId}/tags&quot;)
+    public ResponseEntity&lt;List&lt;Tag&gt;&gt; getAllTagsByTutorialId(@PathVariable(value = &quot;tutorialId&quot;) Long tutorialId) {
+<span class="nc bnc" id="L36" title="All 2 branches missed.">        if (!tutorialRepository.existsById(tutorialId)) {</span>
+<span class="nc" id="L37">            throw new ResourceNotFoundException(&quot;Not found Tutorial with id = &quot; + tutorialId);</span>
+        }
+<span class="nc" id="L39">        List&lt;Tag&gt; tags = tagRepository.findTagsByTutorialsId(tutorialId);</span>
+<span class="nc" id="L40">        return new ResponseEntity&lt;&gt;(tags, HttpStatus.OK);</span>
+    }
+    @GetMapping(&quot;/tags/{id}&quot;)
+    public ResponseEntity&lt;Tag&gt; getTagsById(@PathVariable(value = &quot;id&quot;) Long id) {
+<span class="nc" id="L44">        Tag tag = tagRepository.findById(id)</span>
+<span class="nc" id="L45">                .orElseThrow(() -&gt; new ResourceNotFoundException(&quot;Not found Tag with id = &quot; + id));</span>
+<span class="nc" id="L46">        return new ResponseEntity&lt;&gt;(tag, HttpStatus.OK);</span>
+    }
+
+    @GetMapping(&quot;/tags/{tagId}/tutorials&quot;)
+    public ResponseEntity&lt;List&lt;Tutorial&gt;&gt; getAllTutorialsByTagId(@PathVariable(value = &quot;tagId&quot;) Long tagId) {
+<span class="nc bnc" id="L51" title="All 2 branches missed.">        if (!tagRepository.existsById(tagId)) {</span>
+<span class="nc" id="L52">            throw new ResourceNotFoundException(&quot;Not found Tag  with id = &quot; + tagId);</span>
+        }
+<span class="nc" id="L54">        List&lt;Tutorial&gt; tutorials = tutorialRepository.findTutorialsByTagsId(tagId);</span>
+<span class="nc" id="L55">        return new ResponseEntity&lt;&gt;(tutorials, HttpStatus.OK);</span>
+    }
+    @PostMapping(&quot;/tutorials/{tutorialId}/tags&quot;)
+    public ResponseEntity&lt;Tag&gt; addTag(@PathVariable(value = &quot;tutorialId&quot;) Long tutorialId, @RequestBody Tag tagRequest) {
+<span class="nc" id="L59">        Tag tag = tutorialRepository.findById(tutorialId).map(tutorial -&gt; {</span>
+<span class="nc" id="L60">            long tagId = tagRequest.getId();</span>
+
+            // tag is existed
+<span class="nc bnc" id="L63" title="All 2 branches missed.">            if (tagId != 0L) {</span>
+<span class="nc" id="L64">                Tag _tag = tagRepository.findById(tagId)</span>
+<span class="nc" id="L65">                        .orElseThrow(() -&gt; new ResourceNotFoundException(&quot;Not found Tag with id = &quot; + tagId));</span>
+<span class="nc" id="L66">                tutorial.addTag(_tag);</span>
+<span class="nc" id="L67">                tutorialRepository.save(tutorial);</span>
+<span class="nc" id="L68">                return _tag;</span>
+            }
+
+            // add and create new Tag
+<span class="nc" id="L72">            tutorial.addTag(tagRequest);</span>
+<span class="nc" id="L73">            return tagRepository.save(tagRequest);</span>
+<span class="nc" id="L74">        }).orElseThrow(() -&gt; new ResourceNotFoundException(&quot;Not found Tutorial with id = &quot; + tutorialId));</span>
+<span class="nc" id="L75">        return new ResponseEntity&lt;&gt;(tag, HttpStatus.CREATED);</span>
+    }
+    @PutMapping(&quot;/tags/{id}&quot;)
+    public ResponseEntity&lt;Tag&gt; updateTag(@PathVariable(&quot;id&quot;) long id, @RequestBody Tag tagRequest) {
+<span class="nc" id="L79">        Tag tag = tagRepository.findById(id)</span>
+<span class="nc" id="L80">                .orElseThrow(() -&gt; new ResourceNotFoundException(&quot;TagId &quot; + id + &quot;not found&quot;));</span>
+<span class="nc" id="L81">        tag.setName(tagRequest.getName());</span>
+<span class="nc" id="L82">        return new ResponseEntity&lt;&gt;(tagRepository.save(tag), HttpStatus.OK);</span>
+    }
+
+    @DeleteMapping(&quot;/tutorials/{tutorialId}/tags/{tagId}&quot;)
+    public ResponseEntity&lt;HttpStatus&gt; deleteTagFromTutorial(@PathVariable(value = &quot;tutorialId&quot;) Long tutorialId, @PathVariable(value = &quot;tagId&quot;) Long tagId) {
+<span class="nc" id="L87">        Tutorial tutorial = tutorialRepository.findById(tutorialId)</span>
+<span class="nc" id="L88">                .orElseThrow(() -&gt; new ResourceNotFoundException(&quot;Not found Tutorial with id = &quot; + tutorialId));</span>
+
+<span class="nc" id="L90">        tutorial.removeTag(tagId);</span>
+<span class="nc" id="L91">        tutorialRepository.save(tutorial);</span>
+
+<span class="nc" id="L93">        return new ResponseEntity&lt;&gt;(HttpStatus.NO_CONTENT);</span>
+    }
+
+    @DeleteMapping(&quot;/tags/{id}&quot;)
+    public ResponseEntity&lt;HttpStatus&gt; deleteTag(@PathVariable(&quot;id&quot;) long id) {
+<span class="nc" id="L98">        tagRepository.deleteById(id);</span>
+<span class="nc" id="L99">        return new ResponseEntity&lt;&gt;(HttpStatus.NO_CONTENT);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>
